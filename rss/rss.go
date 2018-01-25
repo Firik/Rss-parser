@@ -35,34 +35,30 @@ type Item struct {
 	PubDate     string       `xml:"pubDate"`
 }
 
-func (rss *Rss) DecodeXmlHttpResponse(err error, response *http.Response) {
+func (rss *Rss) DecodeXmlHttpResponse(response *http.Response) {
+	url := response.Request.URL.String()
 	xmlData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(url, err)
 	}
 	reader := strings.NewReader(string(xmlData))
 	decoder := xml.NewDecoder(reader)
 	decoder.CharsetReader = charset.NewReaderLabel
 	err = decoder.Decode(&rss)
 	if err != nil {
-		log.Println(err)
+		log.Println(url, err)
 	}
 }
 
 func (rss *Rss) ProcessUrl(url string, rssItemsChannel chan<- []Item) {
 	request := rssHttp.CreateRequest(url)
-	response, err := rssHttp.SendRequest(request)
-	if err != nil {
-		errorMessage := "Error while get data from rss " + url + "\n"
-		log.Println(errorMessage, err)
-		return
-	}
-	rss.DecodeXmlHttpResponse(err, response)
+	response := rssHttp.SendRequest(request)
+	rss.DecodeXmlHttpResponse(response)
 	response.Body.Close()
 	rssItemsChannel <- rss.Channel.Items
 }
 
-func (rss *Rss) CombineRssItems(rssItemsChannel <-chan []Item, readyToGoChannel chan<- bool) {
+func (rss *Rss) CombineItems(rssItemsChannel <-chan []Item, readyToGoChannel chan<- bool) {
 	var i = 0
 	for {
 		items := <-rssItemsChannel
@@ -78,15 +74,15 @@ func (rss *Rss) CombineRssItems(rssItemsChannel <-chan []Item, readyToGoChannel 
 	}
 }
 
-func (rss *Rss) SortRssItems() {
+func (rss *Rss) SortItems() {
 	sort.Slice(rss.Channel.Items, func(i, j int) bool {
 		time1, err := time.Parse(time.RFC1123Z, rss.Channel.Items[i].PubDate)
 		if err != nil {
-			log.Println(err)
+			log.Println("Can't parse time1: ", err)
 		}
 		time2, err := time.Parse(time.RFC1123Z, rss.Channel.Items[j].PubDate)
 		if err != nil {
-			log.Println(err)
+			log.Println("Can't parse time2: ", err)
 		}
 
 		return time1.Before(time2)
@@ -94,7 +90,7 @@ func (rss *Rss) SortRssItems() {
 }
 
 func (rss *Rss) XmlBytes() *[]byte {
-	rss.setRssOptions()
+	rss.setDefaultAttributes()
 	rssBytes, err := xml.Marshal(rss)
 	if err != nil {
 		log.Fatal(err)
@@ -102,7 +98,7 @@ func (rss *Rss) XmlBytes() *[]byte {
 	return &rssBytes
 }
 
-func (rss *Rss) setRssOptions() {
+func (rss *Rss) setDefaultAttributes() {
 	rss.Version = xml.Attr{
 		Name:  xml.Name{Local: "version"},
 		Value: "2.0",

@@ -17,11 +17,11 @@ func main() {
 		go Rss.ProcessUrl(url, rssItemsChannel)
 	}
 
-	go Rss.CombineRssItems(rssItemsChannel, readyToGoChannel)
+	go Rss.CombineItems(rssItemsChannel, readyToGoChannel)
 
 	for {
 		if <-readyToGoChannel {
-			Rss.SortRssItems()
+			Rss.SortItems()
 			rssBytes := Rss.XmlBytes()
 			file.SaveToXmlFile(*rssBytes)
 

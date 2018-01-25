@@ -22,7 +22,13 @@ func CreateRequest(url string) *http.Request {
 	return req
 }
 
-func SendRequest(req *http.Request) (*http.Response, error) {
+func SendRequest(req *http.Request) (*http.Response) {
 	client := &http.Client{}
-	return client.Do(req)
+	response, err := client.Do(req)
+	if err != nil {
+		errorMessage := "Error while get data from rss " + req.URL.String() + "\n"
+		log.Println(errorMessage, err)
+	}
+
+	return response
 }
