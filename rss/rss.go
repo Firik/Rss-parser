@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-import "rss_parser/Http"
+import rssHttp "rss_parser/http"
 
 type Rss struct {
 	XMLName xml.Name `xml:"rss"`
@@ -50,8 +50,8 @@ func (rss *Rss) DecodeXmlHttpResponse(err error, response *http.Response) {
 }
 
 func (rss *Rss) ProcessUrl(url string, rssItemsChannel chan<- []Item) {
-	request := Http.CreateRequest(url)
-	response, err := Http.SendRequest(request)
+	request := rssHttp.CreateRequest(url)
+	response, err := rssHttp.SendRequest(request)
 	if err != nil {
 		errorMessage := "Error while get data from rss " + url + "\n"
 		log.Println(errorMessage, err)
