@@ -20,8 +20,11 @@ type Rss struct {
 }
 
 type Channel struct {
-	XMLName xml.Name `xml:"channel"`
-	Items   []Item   `xml:"item"`
+	XMLName  xml.Name `xml:"channel"`
+	Title    string   `xml:"title"`
+	Link     string   `xml:"link"`
+	Language string   `xml:"language"`
+	Items    []Item   `xml:"item"`
 }
 
 type Item struct {
@@ -104,4 +107,8 @@ func (rss *Rss) setRssOptions() {
 		Name:  xml.Name{Local: "version"},
 		Value: "2.0",
 	}
+
+	rss.Channel.Title = "Local Rss"
+	rss.Channel.Link = "http://localhost"
+	rss.Channel.Language = "ru-RU"
 }

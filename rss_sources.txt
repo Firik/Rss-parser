@@ -2,4 +2,4 @@ http://bash.im/rss/
 http://www.ixbt.com/export/news.rss
 http://android-robot.com/category/novosti-hi-tech/feed/
 https://pctuner.club/rss-m-soft.html
-https://thecommunity.ru/rss.xml
+https://www.livemaster.ru/rss

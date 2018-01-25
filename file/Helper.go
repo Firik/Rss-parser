@@ -4,10 +4,12 @@ import (
 	"os"
 	"log"
 	"bufio"
+	"path/filepath"
 )
 
 func SaveToXmlFile(rssBytes []byte) {
-	xmlFile, err := os.Create("output.xml")
+	currentDir := getCurrentDirAbsolute()
+	xmlFile, err := os.Create(currentDir + "output.xml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -18,7 +20,8 @@ func SaveToXmlFile(rssBytes []byte) {
 
 func GetUrlsFromFile(filename string) *[]string {
 	urls := make([]string, 0)
-	file, err := os.Open(filename)
+	currentDir := getCurrentDirAbsolute()
+	file, err := os.Open(currentDir + filename)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,4 +37,12 @@ func GetUrlsFromFile(filename string) *[]string {
 	file.Close()
 
 	return &urls
+}
+
+func getCurrentDirAbsolute() string {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return dir + "/"
 }
