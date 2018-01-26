@@ -58,7 +58,7 @@ func (rss *Rss) ProcessUrl(url string, rssItemsChannel chan<- []Item) {
 	rssItemsChannel <- rss.Channel.Items
 }
 
-func (rss *Rss) CombineItems(rssItemsChannel <-chan []Item, readyToGoChannel chan<- bool) {
+func (rss *Rss) CombineItems(rssItemsChannel <-chan []Item, readyToGoChannel chan<- bool, urlsCount int) {
 	var i = 0
 	for {
 		items := <-rssItemsChannel
@@ -67,7 +67,7 @@ func (rss *Rss) CombineItems(rssItemsChannel <-chan []Item, readyToGoChannel cha
 		}
 		i++
 
-		if i == 5 {
+		if i == urlsCount {
 			readyToGoChannel <- true
 			break
 		}

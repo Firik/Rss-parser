@@ -13,11 +13,12 @@ func main() {
 	var Rss rss.Rss
 
 	urls := file.GetUrlsFromFile("rss_sources.txt")
+	urlsCount := len(*urls)
 	for _, url := range *urls {
 		go Rss.ProcessUrl(url, rssItemsChannel)
 	}
 
-	go Rss.CombineItems(rssItemsChannel, readyToGoChannel)
+	go Rss.CombineItems(rssItemsChannel, readyToGoChannel, urlsCount)
 
 	for {
 		if <-readyToGoChannel {
