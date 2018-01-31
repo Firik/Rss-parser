@@ -3,6 +3,10 @@ package rss
 import (
 	"testing"
 )
+import (
+	rssHttp "rss_parser/http"
+	"strings"
+)
 
 func TestSortItems(t *testing.T) {
 	var rssExpected, rssTesting Rss
@@ -22,10 +26,37 @@ func TestSortItems(t *testing.T) {
 	for i, item := range rssTesting.Channel.Items {
 		expectedPubDate := rssExpected.Channel.Items[i].PubDate
 		if item.PubDate != expectedPubDate {
-			t.Error(
+			t.Fatal(
 				"expected", expectedPubDate,
 				"got", item.PubDate,
 			)
 		}
+	}
+}
+
+func TestCheckCreateAndSendRequest(t *testing.T) {
+	var rssTesting Rss
+	request := rssHttp.CreateRequest("http://bash.imss/rss/")
+
+	targetUrl := "http://bash.imss/rss/"
+	receivedUrl := strings.Trim(request.URL.String(), "\n")
+	if receivedUrl != targetUrl {
+		t.Fatal("expected", targetUrl,
+			"got", receivedUrl,
+		)
+	}
+
+	response := rssHttp.SendRequest(request)
+	if response == nil {
+		t.SkipNow()
+	}
+	rssTesting.DecodeXmlHttpResponse(response)
+
+	targetValue := "Bash.im"
+	receivedValue := strings.Trim(rssTesting.Channel.Title, "\n")
+	if receivedValue != targetValue {
+		t.Fatal("expected", targetValue,
+			"got", receivedValue,
+		)
 	}
 }
