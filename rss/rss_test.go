@@ -36,12 +36,13 @@ func TestSortItems(t *testing.T) {
 
 func TestCheckCreateAndSendRequest(t *testing.T) {
 	var rssTesting Rss
-	request := rssHttp.CreateRequest("http://bash.imss/rss/")
+	request := rssHttp.CreateRequest("http://bash.im/rss/")
 
-	targetUrl := "http://bash.imss/rss/"
+	targetUrl := "http://bash.im/rss/"
 	receivedUrl := strings.Trim(request.URL.String(), "\n")
 	if receivedUrl != targetUrl {
-		t.Fatal("expected", targetUrl,
+		t.Fatal(
+			"expected", targetUrl,
 			"got", receivedUrl,
 		)
 	}
@@ -58,5 +59,39 @@ func TestCheckCreateAndSendRequest(t *testing.T) {
 		t.Fatal("expected", targetValue,
 			"got", receivedValue,
 		)
+	}
+}
+
+func TestSetDefaultAttributes(t *testing.T) {
+	var rssTesting Rss
+	rssTesting.setDefaultAttributes()
+
+	type TestValues struct {
+		expected string
+		got      string
+	}
+
+	var tests = []TestValues{
+		{
+			expected: "http://localhost",
+			got:      rssTesting.Channel.Link,
+		},
+		{
+			expected: "ru-RU",
+			got:      rssTesting.Channel.Language,
+		},
+		{
+			expected: "Local Rss",
+			got:      rssTesting.Channel.Title,
+		},
+	}
+
+	for _, test := range tests {
+		if test.expected != test.got {
+			t.Fatal(
+				"expected", test.expected,
+				"got", test.got,
+			)
+		}
 	}
 }
