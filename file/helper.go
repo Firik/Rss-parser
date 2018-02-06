@@ -18,7 +18,7 @@ func SaveToXmlFile(rssBytes []byte) {
 	xmlFile.Close()
 }
 
-func GetUrlsFromFile(filename string) *[]string {
+func GetUrlsFromFile(filename string) []string {
 	urls := make([]string, 0)
 	currentDir := getCurrentDirAbsolute()
 	file, err := os.Open(currentDir + filename)
@@ -36,7 +36,7 @@ func GetUrlsFromFile(filename string) *[]string {
 	}
 	file.Close()
 
-	return &urls
+	return urls
 }
 
 func getCurrentDirAbsolute() string {

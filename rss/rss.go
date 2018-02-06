@@ -51,24 +51,23 @@ func (rss *Rss) DecodeXmlHttpResponse(response *http.Response) {
 }
 
 func (rss *Rss) ProcessUrl(url string, rssItemsChannel chan<- []Item) {
+	var localRss Rss
 	request := rssHttp.CreateRequest(url)
 	response := rssHttp.SendRequest(request)
-	rss.DecodeXmlHttpResponse(response)
+	localRss.DecodeXmlHttpResponse(response)
 	response.Body.Close()
-	rssItemsChannel <- rss.Channel.Items
+	rssItemsChannel <- localRss.Channel.Items
 }
 
-func (rss *Rss) CombineItems(rssItemsChannel <-chan []Item, readyToGoChannel chan<- bool, urlsCount int) {
+func (rss *Rss) CombineItems(rssItemsChannel <-chan []Item, urlsCount *int) {
 	var i = 0
-	for {
-		items := <-rssItemsChannel
+	for items := range rssItemsChannel {
 		for _, item := range items {
 			rss.Channel.Items = append(rss.Channel.Items, item)
 		}
 		i++
 
-		if i == urlsCount {
-			readyToGoChannel <- true
+		if i == *urlsCount {
 			break
 		}
 	}
@@ -89,13 +88,13 @@ func (rss *Rss) SortItems() {
 	})
 }
 
-func (rss *Rss) XmlBytes() *[]byte {
+func (rss *Rss) XmlBytes() []byte {
 	rss.setDefaultAttributes()
 	rssBytes, err := xml.Marshal(rss)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return &rssBytes
+	return rssBytes
 }
 
 func (rss *Rss) setDefaultAttributes() {
